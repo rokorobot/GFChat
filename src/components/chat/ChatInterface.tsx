@@ -202,7 +202,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
       });
       
       const errorMsg = "Sorry, I'm having trouble connecting right now. Please try again in a moment! 💕";
-      const errorResponse = await companionClient.saveMessage(user.id, errorMsg, false);
+      const errorDetails = error instanceof Error ? error.message : String(error);
+      const errorResponse = await companionClient.saveMessage(user.id, errorMsg, false, errorDetails);
       setMessages((prev) => [...prev, errorResponse]);
     } finally {
       setIsTyping(false);
@@ -339,6 +340,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
                     timestamp={message.timestamp}
                     avatar={message.isUser ? "👤" : undefined}
                     aiGender={settings.aiGender}
+                    debugInfo={message.debugInfo}
                   />
                 ))}
                 <TypingIndicator isVisible={isTyping} />

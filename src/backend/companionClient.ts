@@ -5,6 +5,7 @@ export interface ChatMessage {
   content: string;
   isUser: boolean;
   timestamp: Date;
+  debugInfo?: string;
 }
 
 export class CompanionClient {
@@ -38,7 +39,7 @@ export class CompanionClient {
     const stored = localStorage.getItem(this.getStorageKey(userId));
     if (!stored) return [];
     try {
-      return JSON.parse(stored).map((msg: { id: string; content: string; isUser: boolean; timestamp: string }) => ({
+      return JSON.parse(stored).map((msg: { id: string; content: string; isUser: boolean; timestamp: string; debugInfo?: string }) => ({
         ...msg,
         timestamp: new Date(msg.timestamp)
       }));
@@ -48,12 +49,13 @@ export class CompanionClient {
   }
 
   // Save a single chat message
-  async saveMessage(userId: string, content: string, isUser: boolean): Promise<ChatMessage> {
+  async saveMessage(userId: string, content: string, isUser: boolean, debugInfo?: string): Promise<ChatMessage> {
     const newMessage: ChatMessage = {
       id: Date.now().toString(),
       content,
       isUser,
-      timestamp: new Date()
+      timestamp: new Date(),
+      debugInfo
     };
 
     if (isSupabaseConfigured) {
@@ -74,7 +76,8 @@ export class CompanionClient {
             id: data.id,
             content: data.content,
             isUser: data.is_user,
-            timestamp: new Date(data.created_at)
+            timestamp: new Date(data.created_at),
+            debugInfo
           };
         }
       } catch (err) {

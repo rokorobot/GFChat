@@ -9,6 +9,7 @@ interface MessageBubbleProps {
   timestamp: Date;
   avatar?: string;
   aiGender?: 'male' | 'female';
+  debugInfo?: string;
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -16,7 +17,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   isUser,
   timestamp,
   avatar,
-  aiGender = 'female'
+  aiGender = 'female',
+  debugInfo
 }) => {
   return (
     <div className={cn(
@@ -42,6 +44,11 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           : "bg-message-ai text-message-ai-foreground border border-border rounded-bl-md"
       )}>
         <p className="text-sm leading-relaxed">{message}</p>
+        {import.meta.env.DEV && debugInfo && (
+          <div className="mt-2 text-[11px] leading-tight text-red-600 dark:text-red-400 font-mono bg-red-500/5 border border-red-500/10 rounded px-2 py-1 select-text">
+            Debug: {debugInfo}
+          </div>
+        )}
         <p className={cn(
           "text-xs mt-1",
           isUser ? "text-message-user-foreground/70" : "text-muted-foreground"
