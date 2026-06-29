@@ -24,7 +24,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       isUser ? "justify-end" : "justify-start"
     )}>
       {!isUser && (
-        <div className="relative w-8 h-8 rounded-full overflow-hidden shadow-sm bg-gradient-to-br from-primary to-accent p-0.5">
+        <div className="relative w-8 h-8 rounded-full overflow-hidden shadow-sm bg-gradient-to-br from-primary to-accent p-0.5 shrink-0">
           <div className="w-full h-full rounded-full overflow-hidden bg-white">
             <img 
               src={avatar || (aiGender === 'male' ? maleAvatar : gfAvatar)} 
@@ -51,7 +51,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       </div>
       
       {isUser && (
-        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-medium text-sm">
+        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground font-medium text-sm shrink-0 select-none">
           You
         </div>
       )}

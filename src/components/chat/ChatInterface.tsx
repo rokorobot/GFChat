@@ -31,6 +31,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   const [avatarState, setAvatarState] = useState<AvatarState>('idle');
   const [avatarEmotion, setAvatarEmotion] = useState<AvatarEmotion>('neutral');
   const [isUserInputting, setIsUserInputting] = useState(false);
+  const isInitializingRef = useRef(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const previousGenderRef = useRef<'male' | 'female'>();
@@ -100,6 +101,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   useEffect(() => {
     const loadMessages = async () => {
       if (!user) return;
+      if (isInitializingRef.current) return;
+      isInitializingRef.current = true;
 
       try {
         const existingMessages = await companionClient.loadMessages(user.id);
@@ -113,10 +116,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
             setLastAiMessageId(lastAiMsg.id);
           }
         } else {
-          // Send initial welcome message if no messages exist
-          const welcomeMessage = `Hi! I'm your AI ${settings?.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;
-          const savedMsg = await companionClient.saveMessage(user.id, welcomeMessage, false);
-          setMessages([savedMsg]);
+          // Double-check one more time that messages list is truly empty before writing new welcome message
+          const doubleCheck = await companionClient.loadMessages(user.id);
+          if (doubleCheck.length === 0) {
+            const welcomeMessage = `Hi! I'm your AI ${settings?.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;
+            const savedMsg = await companionClient.saveMessage(user.id, welcomeMessage, false);
+            setMessages([savedMsg]);
+          } else {
+            setMessages(doubleCheck);
+            const lastAiMsg = [...doubleCheck].reverse().find(m => !m.isUser);
+            if (lastAiMsg) {
+              setLastAiMessageId(lastAiMsg.id);
+            }
+          }
         }
       } catch (error) {
         console.error('Error loading messages:', error);
@@ -126,7 +138,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
     };
 
     loadMessages();
-  }, [user, settings?.aiGender]);
+  }, [user]);
 
   // Add safety check for settings (moved below hooks to satisfy rules of hooks)
   if (!settings) {
@@ -203,17 +215,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
       setMessages([]);
       setLastAiMessageId('');
 
+      // Create new welcome message immediately and atomically
+      const welcomeMessage = `Hi! I'm your AI ${settings.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;
+      const savedMsg = await companionClient.saveMessage(user.id, welcomeMessage, false);
+      setMessages([savedMsg]);
+
       toast({
         title: "Chat Reset",
         description: "Your conversation has been cleared.",
       });
-
-      // Send new welcome message after a brief delay
-      setTimeout(async () => {
-        const welcomeMessage = `Hi! I'm your AI ${settings.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;
-        const savedMsg = await companionClient.saveMessage(user.id, welcomeMessage, false);
-        setMessages([savedMsg]);
-      }, 500);
 
     } catch (error) {
       console.error('Error resetting chat:', error);
