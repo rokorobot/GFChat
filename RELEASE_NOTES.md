@@ -1,5 +1,15 @@
 # Release Notes
 
+## [v0.1.4] - Visual Companion Polish & Persona Depth (`feature/visual-companion-polish`)
+- **Dynamic Personality Mocks**: Replaced fallback generic replies with dynamic, keyword-driven responses matching the active companion preset (`Sweet`, `Playful`, `Romantic`, `Motivator`).
+- **Interactive Test Voice Action**: Added a **Test Voice** button to the companion dashboard to play a sample sentence locally using the active voice engine.
+- **Visual Status Badges**: Mounted live voice indicator pills illustrating the active engine state (`Supabase Voice` vs `Local Voice`).
+- **Styled Personality Badges**: Added beautifully styled gradient badge pills next to the companion avatar.
+- **Glassmorphism Sidebar Panel**: Redesigned the right panel on desktop with rich blurs, consistent padding, and border glow styling.
+- **Warm & Intimate Welcome Messages**: Customized the initial greeting sent on mount or reset to match the active companion personality preset.
+
+---
+
 ## [v0.1.3] - Voice Input Loop (`feature/voice-input-loop`)
 - **Robust Local Speech Recognition**: Revamped the Web Speech API voice capture hook (`useVoiceInput.ts`) with callback ref-locks to prevent event loop disconnects or recreation on typing/keystrokes.
 - **Bi-directional Interruption**: Configured voice input to immediately cut off and silence active companion audio output on mic click.

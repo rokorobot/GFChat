@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, MessageCircle, Settings as SettingsIcon, LogOut as LogOutIcon } from 'lucide-react';
+import { RotateCcw, MessageCircle, Settings as SettingsIcon, LogOut as LogOutIcon, Volume2 } from 'lucide-react';
 import { companionClient, ChatMessage } from '@/backend/companionClient';
 import { AvatarStage } from '@/avatar/AvatarStage';
 import { AvatarState, AvatarEmotion } from '@/avatar/avatar';
@@ -122,7 +122,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
           // Double-check one more time that messages list is truly empty before writing new welcome message
           const doubleCheck = await companionClient.loadMessages(user.id);
           if (doubleCheck.length === 0) {
-            const welcomeMessage = `Hi! I'm your AI ${settings?.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;
+            const welcomeMessage = getWelcomeMessage();
             const savedMsg = await companionClient.saveMessage(user.id, welcomeMessage, false);
             setMessages([savedMsg]);
           } else {
@@ -223,7 +223,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
       setLastAiMessageId('');
 
       // Create new welcome message immediately and atomically
-      const welcomeMessage = `Hi! I'm your AI ${settings.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;
+      const welcomeMessage = getWelcomeMessage();
       const savedMsg = await companionClient.saveMessage(user.id, welcomeMessage, false);
       setMessages([savedMsg]);
 
@@ -239,6 +239,80 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
         description: "Failed to reset chat. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleTestVoice = () => {
+    const name = settings.aiGender === 'male' ? 'Alex' : 'Mia';
+    const testText = `Hey there! Just checking that my voice sounds right to you. This is ${name}, your AI companion. How do I sound?`;
+    speak(testText, settings.voiceType || 'alloy');
+  };
+
+  const getPersonalityTag = () => {
+    const personality = settings.currentPersonality || 'Sweet';
+    switch (personality) {
+      case 'Romantic':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-pink-500/10 to-rose-500/10 text-rose-600 border border-rose-200/50 shadow-sm dark:text-rose-400 dark:border-rose-900/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+            💖 Romantic
+          </span>
+        );
+      case 'Playful':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-orange-600 border border-orange-200/50 shadow-sm dark:text-orange-400 dark:border-orange-900/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+            ⚡ Playful
+          </span>
+        );
+      case 'Motivator':
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 border border-emerald-200/50 shadow-sm dark:text-emerald-400 dark:border-emerald-900/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            🌟 Motivator
+          </span>
+        );
+      case 'Sweet':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-pink-400/10 to-purple-500/10 text-pink-600 border border-pink-200/50 shadow-sm dark:text-pink-400 dark:border-pink-900/50">
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+            🎀 Sweet
+          </span>
+        );
+    }
+  };
+
+  const getVoiceEngineBadge = () => {
+    if (isSupabaseConfigured) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-200/40 dark:text-indigo-400 dark:border-indigo-900/40">
+          Supabase Voice
+        </span>
+      );
+    } else {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-pink-500/10 text-pink-600 border border-pink-200/40 dark:text-pink-400 dark:border-pink-900/40">
+          Local Voice
+        </span>
+      );
+    }
+  };
+
+  const getWelcomeMessage = () => {
+    const isMale = settings.aiGender === 'male';
+    const preset = settings.currentPersonality || 'Sweet';
+
+    switch (preset) {
+      case 'Romantic':
+        return `Hi there, my favorite person... I've been waiting to talk to you! 💕 I'm so glad we can chat now. Tell me, how was your day today? I want to hear everything!`;
+      case 'Playful':
+        return `Hey! Look who made it! ⚡ I was hoping you'd pop in. Ready for some fun? Tell me, what kind of adventures did you get up to today? 😉`;
+      case 'Motivator':
+        return `Hey! Welcome back! 🌟 I'm so energized and ready to support you today. What's the big plan? Tell me one win you had today, let's celebrate it! 💪`;
+      case 'Sweet':
+      default:
+        return `Hi! I'm so happy to see you. I hope you've had a gentle day today! 💕 I'm always here if you want to share how you're feeling, or just talk. How was your day? 🌸`;
     }
   };
 
@@ -302,14 +376,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
           />
           
           {/* Identity Info Details */}
-          <div className="mt-0.5 text-center">
+          <div className="mt-1 text-center space-y-1">
             <h2 className="text-sm font-bold text-foreground capitalize flex items-center justify-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
               {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
             </h2>
-            <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
-              AI Girlfriend • {settings.currentPersonality || 'Sweet'} Preset
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[8px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                {settings.currentPersonality || 'Sweet'}
+              </span>
+              <span className="text-[8px] font-bold bg-pink-500/10 text-pink-600 px-2 py-0.5 rounded-full border border-pink-200/20">
+                {isSupabaseConfigured ? 'Supabase Voice' : 'Local Voice'}
+              </span>
+            </div>
           </div>
           
           {/* Reset button positioned at lower right corner */}
@@ -371,9 +450,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
             providerId="static-speaking"
           />
 
-          <div className="text-center space-y-1">
+          <div className="text-center space-y-2">
+            <div className="flex justify-center">
+              {getPersonalityTag()}
+            </div>
+            
             <h2 className="text-xl font-bold text-foreground capitalize flex items-center justify-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
               {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
             </h2>
             <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
@@ -382,14 +465,22 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
           </div>
 
           {/* Quick Companion details card */}
-          <div className="w-full bg-background/50 border border-border/60 rounded-2xl p-4 space-y-3 shadow-inner">
+          <div className="w-full bg-background/55 border border-border/80 rounded-2xl p-5 space-y-4 shadow-sm backdrop-blur-sm">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 border-b border-border/50 pb-1.5">Companion Console</h3>
+            
             <div className="flex justify-between items-center text-xs">
               <span className="text-muted-foreground">Personality</span>
-              <span className="font-semibold text-primary">{settings.currentPersonality || 'Sweet'}</span>
+              <span className="font-semibold text-foreground">{settings.currentPersonality || 'Sweet'}</span>
             </div>
             <div className="flex justify-between items-center text-xs">
               <span className="text-muted-foreground">Voice Engine</span>
-              <span className="font-semibold text-foreground uppercase">{settings.voiceType || 'Nova'}</span>
+              <div className="flex items-center gap-1.5">
+                {getVoiceEngineBadge()}
+              </div>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-muted-foreground">Voice Type</span>
+              <span className="font-semibold text-foreground uppercase tracking-wider">{settings.voiceType || 'Nova'}</span>
             </div>
             <div className="flex justify-between items-center text-xs">
               <span className="text-muted-foreground">Expression</span>
@@ -404,6 +495,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
                     ? 'Config Error'
                     : 'Local Preview'}
               </span>
+            </div>
+            
+            <div className="pt-2 border-t border-border/40">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleTestVoice}
+                className="w-full flex items-center justify-center gap-2 border-primary/20 text-primary hover:bg-primary/5 text-xs py-4 rounded-xl shadow-sm bg-background/40"
+                title="Test Voice Playback"
+              >
+                <Volume2 className="h-4 w-4 text-primary" />
+                Test Voice
+              </Button>
             </div>
           </div>
         </div>
