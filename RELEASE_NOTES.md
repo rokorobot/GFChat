@@ -1,23 +1,19 @@
-# Release Notes - feature/avatar-architecture
+# Release Notes
 
+## [v0.1.1] - Realtime Speaking Loop (`feature/realtime-speaking-loop`)
+- **Interactive Avatar Stage Reactions**: Mounted the animated `<AvatarStage>` onto the main chat window interface, rendering standard visual states (idle, listening, thinking, speaking) dynamically.
+- **Microphone & Keyboard Binding**: Tied avatar states to input triggers. Typing text transitions the avatar to `listening`, sending a message changes it to `thinking`, and microphone input triggers a listening state.
+- **Audio Output Synchronization**: Synchronized the avatar's `speaking` state directly with the active playing duration of TTS voice audio. Interrupts like sending a new message or resetting the chat immediately stop any previous audio playback.
+- **Local Fallback Speech Synthesis**: Integrated browser-native `speechSynthesis` API fallback. If Supabase config variables are missing, the AI companion actually speaks using native local text-to-speech!
+- **Default Companion Profile Details**: Added live companion name badge ("Mia" / "Alex") and active personality preset info indicators directly to the UI.
+
+---
+
+## [v0.1.0] - Speaking Avatar Architecture Baseline (`v0.1.0-clean-baseline`)
 This release transitions GF.Chat from a static Lovable prototype into a robust, provider-agnostic Speaking Avatar architecture with built-in graceful local fallback features.
 
-## What's Changed
-
-### 1. Robust Configuration & Fallbacks
-- **Client Dynamic Environments**: Patched `src/integrations/supabase/client.ts` to dynamically fetch variables from `import.meta.env` rather than hardcoding legacy project credentials.
-- **Graceful Fallback Mode**: If `VITE_SUPABASE_URL` is unconfigured, the application automatically launches in **Local Preview Mode**. Message history and custom profile memories are managed locally in `localStorage`.
-
-### 2. Lint Compliance & Code Health
-- **React Hooks Order Violation**: Fixed a critical hook ordering bug in `ChatInterface.tsx` where an early return was declared before other `useEffect` declarations.
-- **TypeScript Cleanups**: Resolved empty interface and explicit-any warnings on `textarea.tsx`, `command.tsx`, `useVoiceInput.ts`, and `companionClient.ts`.
-
-### 3. Provider-Agnostic Architecture
-Introduced the folder skeleton layout with standard TS interfaces for:
-- **`src/companion/`**: Personality styles, customized profiles, relationship structures (`girlfriendProfile.ts`, `relationshipMemory.ts`).
-- **`src/avatar/`**: Render states (idle, listening, thinking, speaking) and emotional expressions (`avatar.ts`, `SpeakingAvatar.tsx`, `AvatarStage.tsx`).
-- **`src/voice/`**: Interface boundaries for TTS and STT sound engines (`voice.ts`).
-- **`src/backend/`**: An abstraction layer for companion database communication (`companionClient.ts`).
-
-### 4. Interactive Avatar UI
-- Integrated the new `<AvatarStage>` component into `ChatInterface.tsx` which animates the avatar portrait (pulsing glow, size scaling, state transitions) based on voice activity and chat typing actions.
+### Key Changes:
+- **Client Dynamic Environments**: Patched `src/integrations/supabase/client.ts` to dynamically fetch variables from `import.meta.env`.
+- **Graceful Fallback Mode**: If `VITE_SUPABASE_URL` is unconfigured, the application automatically launches in **Local Preview Mode** with `localStorage` message history.
+- **Lint Compliance**: Fixed a critical hook ordering bug in `ChatInterface.tsx` and resolved typescript type warnings.
+- **Provider-Agnostic Folders**: Introduced `src/companion/`, `src/avatar/`, `src/voice/`, and `src/backend/` folders.

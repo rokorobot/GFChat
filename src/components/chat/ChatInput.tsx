@@ -8,12 +8,16 @@ import { useSettings } from '@/hooks/useSettings';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
+  onInputChange?: (value: string) => void;
+  onVoiceListeningChange?: (isListening: boolean) => void;
   disabled?: boolean;
   placeholder?: string;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
+  onInputChange,
+  onVoiceListeningChange,
   disabled = false,
   placeholder = "Type your message..."
 }) => {
@@ -33,17 +37,38 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   });
 
+  // Notify parent component when microphone listening state changes
+  useEffect(() => {
+    if (onVoiceListeningChange) {
+      onVoiceListeningChange(isListening);
+    }
+  }, [isListening, onVoiceListeningChange]);
+
   // Update input with voice transcript for visual feedback
   useEffect(() => {
     if (isListening && transcript) {
       setMessage(transcript);
+      if (onInputChange) {
+        onInputChange(transcript);
+      }
     }
-  }, [transcript, isListening]);
+  }, [transcript, isListening, onInputChange]);
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
       onSendMessage(message.trim());
       setMessage('');
+      if (onInputChange) {
+        onInputChange('');
+      }
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setMessage(val);
+    if (onInputChange) {
+      onInputChange(val);
     }
   };
 
@@ -58,7 +83,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     <div className="flex gap-2 p-4 border-t border-border bg-card/50 backdrop-blur-sm">
       <Input
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={handleInputChange}
         onKeyPress={handleKeyPress}
         placeholder={isListening ? "Listening..." : placeholder}
         disabled={disabled || isListening}

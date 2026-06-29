@@ -30,12 +30,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   const [lastAiMessageId, setLastAiMessageId] = useState<string>('');
   const [avatarState, setAvatarState] = useState<AvatarState>('idle');
   const [avatarEmotion, setAvatarEmotion] = useState<AvatarEmotion>('neutral');
+  const [isUserInputting, setIsUserInputting] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const previousGenderRef = useRef<'male' | 'female'>();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { speak, isLoading: isSpeaking } = useTextToSpeech();
+  const { speak, stop, isPlaying: isSpeaking } = useTextToSpeech();
   const { settings, getCurrentPersonalityText } = useSettings();
 
   const scrollToBottom = () => {
@@ -46,16 +47,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Synchronize avatar state based on system speech state
+  // Synchronize avatar state based on chat lifecycle priorities
   useEffect(() => {
     if (isSpeaking) {
       setAvatarState('speaking');
     } else if (isTyping) {
       setAvatarState('thinking');
+    } else if (isUserInputting) {
+      setAvatarState('listening');
     } else {
       setAvatarState('idle');
     }
-  }, [isSpeaking, isTyping]);
+  }, [isSpeaking, isTyping, isUserInputting]);
 
   // Map selected companion personality to avatar emotions
   useEffect(() => {
@@ -130,11 +133,20 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
     );
   }
 
+  const handleInputChange = (value: string) => {
+    setIsUserInputting(value.trim().length > 0);
+  };
+
+  const handleVoiceListeningChange = (listening: boolean) => {
+    setIsUserInputting(listening);
+  };
+
   const handleSendMessage = async (content: string) => {
     if (!user) return;
 
-    // Transition avatar state to listening/thinking
-    setAvatarState('listening');
+    // Interrupt any active speaking immediately when user responds
+    stop();
+    setIsUserInputting(false);
 
     const userMessage = await companionClient.saveMessage(user.id, content, true);
     setMessages((prev) => [...prev, userMessage]);
@@ -177,6 +189,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   const handleResetChat = async () => {
     if (!user) return;
 
+    // Stop speaking immediately on reset
+    stop();
+
     try {
       await companionClient.clearMessages(user.id);
       setMessages([]);
@@ -207,13 +222,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   return (
     <div className="flex flex-col h-screen bg-gradient-chat">
       {/* Header with Speaking Avatar Stage */}
-      <div className="flex flex-col items-center p-4 border-b border-border bg-card/80 backdrop-blur-sm relative">
+      <div className="flex flex-col items-center p-4 border-b border-border bg-card/80 backdrop-blur-sm relative w-full">
         <AvatarStage
           gender={settings.aiGender}
           state={avatarState}
           emotion={avatarEmotion}
           providerId="static-speaking"
         />
+        
+        {/* Default Companion Profile Identity Details */}
+        <div className="mt-1 text-center">
+          <h2 className="text-sm font-bold text-foreground capitalize flex items-center justify-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+            {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
+          </h2>
+          <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
+            AI Girlfriend • {settings.currentPersonality || 'Sweet'} Preset
+          </p>
+        </div>
         
         {/* Reset button positioned at lower right corner */}
         <Button
@@ -269,6 +295,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
       {/* Input */}
       <ChatInput
         onSendMessage={handleSendMessage}
+        onInputChange={handleInputChange}
+        onVoiceListeningChange={handleVoiceListeningChange}
         placeholder="Share your thoughts..."
         disabled={isTyping || isLoading}
       />
