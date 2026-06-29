@@ -284,7 +284,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   };
 
   const getVoiceEngineBadge = () => {
-    if (isSupabaseConfigured) {
+    if (runtimeMode === 'remote-supabase') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-200/40 dark:text-indigo-400 dark:border-indigo-900/40">
           Supabase Voice
@@ -386,7 +386,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
                 {settings.currentPersonality || 'Sweet'}
               </span>
               <span className="text-[8px] font-bold bg-pink-500/10 text-pink-600 px-2 py-0.5 rounded-full border border-pink-200/20">
-                {isSupabaseConfigured ? 'Supabase Voice' : 'Local Voice'}
+                {runtimeMode === 'remote-supabase' ? 'Supabase Voice' : 'Local Voice'}
               </span>
             </div>
           </div>
