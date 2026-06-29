@@ -256,6 +256,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
         <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/30 backdrop-blur-sm lg:px-6">
           <div className="flex items-center gap-4">
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">GF.Chat</span>
+            {!isSupabaseConfigured && (
+              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-600 border border-amber-200/40 px-2.5 py-0.5 rounded-full dark:text-amber-400 dark:border-amber-900/40 shrink-0">
+                Preview Mode
+              </span>
+            )}
             
             <Button 
               variant="ghost" 
