@@ -27,9 +27,7 @@ export const AuthProvider = ({ children, preview = false }: AuthProviderProps) =
   const activePreview = preview || !isSupabaseConfigured || forcePreview;
 
   useEffect(() => {
-    console.log("[GF.Chat] AuthProvider useEffect running", { activePreview });
     if (activePreview) {
-      console.log("[GF.Chat] AuthProvider setting mock preview session");
       // Mock user for preview mode
       setUser({
         id: 'preview-user',
@@ -59,35 +57,23 @@ export const AuthProvider = ({ children, preview = false }: AuthProviderProps) =
       return;
     }
 
-    try {
-      console.log("[GF.Chat] AuthProvider setting up remote Supabase listeners");
-      // Set up auth state listener FIRST
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          console.log("[GF.Chat] Supabase onAuthStateChange triggered", event);
-          setSession(session);
-          setUser(session?.user ?? null);
-          setIsLoading(false);
-        }
-      );
-
-      // THEN check for existing session
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        console.log("[GF.Chat] Supabase getSession resolved");
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
-      }).catch(err => {
-        console.error("[GF.Chat] Supabase getSession failed:", err);
-        setIsLoading(false);
-      });
+      }
+    );
 
-      return () => subscription.unsubscribe();
-    } catch (err) {
-      console.error("[GF.Chat] Supabase listener initialization failed, falling back to preview:", err);
-      // Fallback
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
       setIsLoading(false);
-    }
+    });
+
+    return () => subscription.unsubscribe();
   }, [activePreview]);
 
   const loginAsPreview = () => {
@@ -116,31 +102,11 @@ export const AuthProvider = ({ children, preview = false }: AuthProviderProps) =
     loginAsPreview,
   };
 
-  try {
-    console.log("[GF.Chat] AuthProvider rendering", { isLoading, user: user?.id });
-    
-    if (isLoading) {
-      return (
-        <div style={{ padding: 32, fontFamily: "sans-serif", color: "#ec4899", fontWeight: "bold" }}>
-          GF.Chat auth loading...
-        </div>
-      );
-    }
-
-    return (
-      <AuthContext.Provider value={value}>
-        {children}
-      </AuthContext.Provider>
-    );
-  } catch (error) {
-    console.error("[GF.Chat] AuthProvider render crashed:", error);
-    return (
-      <div style={{ padding: 24, color: "red", fontFamily: "sans-serif" }}>
-        <h3>GF.Chat AuthProvider Render Crash</h3>
-        <pre style={{ fontSize: "12px", opacity: 0.8 }}>{String(error)}</pre>
-      </div>
-    );
-  }
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

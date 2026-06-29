@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 export default function Intro() {
-  console.log("[GF.Chat] Landing route render");
   const navigate = useNavigate();
 
   const handleStart = () => {
