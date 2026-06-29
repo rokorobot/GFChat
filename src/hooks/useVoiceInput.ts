@@ -27,12 +27,16 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
+  // Keep options fresh in a ref to avoid recreating the SpeechRecognition engine on parent re-renders
+  const optionsRef = useRef(options);
+  useEffect(() => {
+    optionsRef.current = options;
+  });
+
   const {
     language = 'en-US',
     continuous = isMobile ? true : false, // Enable continuous mode on mobile for longer listening
     interimResults = true,
-    onResult,
-    onError
   } = options;
 
   useEffect(() => {
@@ -55,19 +59,19 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         let interimTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
+          const transcriptText = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript;
+            finalTranscript += transcriptText;
           } else {
-            interimTranscript += transcript;
+            interimTranscript += transcriptText;
           }
         }
 
         const fullTranscript = finalTranscript || interimTranscript;
         setTranscript(fullTranscript);
 
-        if (finalTranscript && onResult) {
-          onResult(finalTranscript.trim());
+        if (finalTranscript && optionsRef.current.onResult) {
+          optionsRef.current.onResult(finalTranscript.trim());
         }
       };
 
@@ -93,8 +97,8 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
             errorMessage = `Speech recognition error: ${event.error}`;
         }
 
-        if (onError) {
-          onError(errorMessage);
+        if (optionsRef.current.onError) {
+          optionsRef.current.onError(errorMessage);
         } else {
           toast({
             title: "Voice Input Error",
@@ -113,10 +117,14 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          console.warn('Cleanup error of recognition:', e);
+        }
       }
     };
-  }, [language, continuous, interimResults, onResult, onError, toast]);
+  }, [language, continuous, interimResults, toast]);
 
   const startListening = async () => {
     if (!isSupported) {

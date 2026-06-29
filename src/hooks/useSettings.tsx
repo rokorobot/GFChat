@@ -36,7 +36,7 @@ const defaultSettings: AppSettings = {
   useDefaultAI: true,
   currentPersonality: '',
   savedPersonalities: [],
-  voiceInput: false,
+  voiceInput: true,
   voiceOutput: true,
   voiceType: 'nova',
   voiceVolume: 80,

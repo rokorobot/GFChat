@@ -1,5 +1,14 @@
 # Release Notes
 
+## [v0.1.3] - Voice Input Loop (`feature/voice-input-loop`)
+- **Robust Local Speech Recognition**: Revamped the Web Speech API voice capture hook (`useVoiceInput.ts`) with callback ref-locks to prevent event loop disconnects or recreation on typing/keystrokes.
+- **Bi-directional Interruption**: Configured voice input to immediately cut off and silence active companion audio output on mic click.
+- **Review Before Send**: Populate transcript directly into the chat input bar, enabling users to edit, review, and manually tap Send rather than auto-submitting.
+- **Dynamic Indicators**: Connect microphone states to update input field placeholders and trigger avatar `Listening...` indicators.
+- **Voice Enabled by Default**: Enabled `voiceInput` in default app settings so the microphone toggle button is visible by default on initial install.
+
+---
+
 ## [v0.1.2] - Adaptive Desktop Layout (`feature/adaptive-desktop-layout`)
 - **Adaptive Two-Zone Layout**: Added full desktop breakpoint support. On wide viewports (`lg:`), the screen is split: the conversation panel (messages & input bar) occupies the left/center, while a dedicated companion detail panel moves to the right.
 - **Improved Space Efficiency**: Pruned excessive vertical whitespace on top of the mobile vertical flow.

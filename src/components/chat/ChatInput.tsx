@@ -5,6 +5,7 @@ import { Send, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { useSettings } from '@/hooks/useSettings';
+import { useToast } from '@/components/ui/use-toast';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -23,6 +24,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const { settings } = useSettings();
+  const { toast } = useToast();
   
   const { 
     isListening, 
@@ -30,10 +32,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     isSupported: isVoiceSupported, 
     toggleListening 
   } = useVoiceInput({
-    onResult: (finalTranscript) => {
-      if (finalTranscript.trim()) {
-        onSendMessage(finalTranscript.trim());
+    onError: (errorMessage) => {
+      // Quietly log no-speech timeouts instead of showing a destructive red toast
+      if (errorMessage.includes('No speech detected')) {
+        console.log('Voice Input: No speech detected.');
+        return;
       }
+      toast({
+        title: "Voice Input",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   });
 

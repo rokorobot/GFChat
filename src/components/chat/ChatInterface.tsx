@@ -159,6 +159,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
 
   const handleVoiceListeningChange = (listening: boolean) => {
     setIsUserInputting(listening);
+    if (listening) {
+      stop(); // Stop active speaking output immediately when microphone opens!
+    }
   };
 
   const handleSendMessage = async (content: string) => {
