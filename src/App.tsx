@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SettingsProvider } from "@/hooks/useSettings";
 import { AuthProvider } from "@/context/AuthContext";
@@ -25,7 +25,9 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Intro />
+              <Routes>
+                <Route path="/" element={<Intro />} />
+              </Routes>
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>
