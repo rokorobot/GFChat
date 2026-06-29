@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { runtimeMode, getConfigErrorDetails } from '@/lib/runtimeConfig';
 
 export interface ChatMessage {
   id: string;
@@ -118,6 +119,10 @@ export class CompanionClient {
     history: ChatMessage[],
     personalityText: string
   ): Promise<string> {
+    if (runtimeMode === 'config-error') {
+      throw new Error(`Configuration Error: ${getConfigErrorDetails()}`);
+    }
+
     if (isSupabaseConfigured) {
       try {
         // Prepare context payload in same format as edge function migration expectations
