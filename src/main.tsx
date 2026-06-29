@@ -18,14 +18,30 @@ if (!root) {
 
 // Set temporary booting message
 root.innerHTML =
-  "<div style='padding:24px;font-family:sans-serif'>GF.Chat booting...</div>";
+  "<div style='padding:24px;font-family:sans-serif;color:#ec4899;font-weight:bold'>GF.Chat booting...</div>";
 
-ReactDOM.createRoot(root).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+console.log("[GF.Chat] before createRoot");
+const reactRoot = ReactDOM.createRoot(root);
+console.log("[GF.Chat] after createRoot, before render");
+
+try {
+  reactRoot.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ErrorBoundary>
+    </React.StrictMode>
+  );
+  console.log("[GF.Chat] render call completed");
+} catch (error) {
+  console.error("[GF.Chat] synchronous render failure", error);
+  root.innerHTML =
+    `<div style='padding:24px;color:red;font-family:sans-serif'>GF.Chat synchronous render failure. Error: ${error}</div>`;
+}
+
+setTimeout(() => {
+  console.log("[GF.Chat] post-render root HTML length:", root.innerHTML.length);
+  console.log("[GF.Chat] post-render root preview:", root.innerHTML.slice(0, 300));
+}, 100);
