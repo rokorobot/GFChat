@@ -187,6 +187,11 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     }
   };
 
+  const resetVoiceInput = () => {
+    setTranscript('');
+    console.log("[voice] transcript reset");
+  };
+
   return {
     isListening,
     transcript,
@@ -194,5 +199,6 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
     startListening,
     stopListening,
     toggleListening,
+    resetVoiceInput,
   };
 };

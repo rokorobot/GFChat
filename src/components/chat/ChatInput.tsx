@@ -31,7 +31,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     isListening, 
     transcript, 
     isSupported: isVoiceSupported, 
-    toggleListening 
+    toggleListening,
+    resetVoiceInput
   } = useVoiceInput({
     onError: (errorMessage) => {
       // Quietly log no-speech timeouts instead of showing a destructive red toast
@@ -70,6 +71,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const handleToggleListening = () => {
     if (!isListening) {
       textBeforeVoiceRef.current = message;
+      resetVoiceInput();
     }
     toggleListening();
   };
@@ -78,6 +80,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     if (message.trim() && !disabled) {
       onSendMessage(message.trim());
       setMessage('');
+      textBeforeVoiceRef.current = '';
+      resetVoiceInput();
       if (onInputChange) {
         onInputChange('');
       }
