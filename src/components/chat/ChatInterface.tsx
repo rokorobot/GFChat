@@ -12,6 +12,7 @@ import { RotateCcw, MessageCircle, Settings as SettingsIcon, LogOut as LogOutIco
 import { companionClient, ChatMessage } from '@/backend/companionClient';
 import { AvatarStage } from '@/avatar/AvatarStage';
 import { AvatarState, AvatarEmotion } from '@/avatar/avatar';
+import { isSupabaseConfigured } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
