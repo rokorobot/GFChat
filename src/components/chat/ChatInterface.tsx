@@ -90,14 +90,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
 
   // Auto-speak new AI responses
   useEffect(() => {
-    if (isLoading || !settings?.voiceOutput) return;
+    if (isLoading || !settings || !settings.voiceOutput) return;
     
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && !lastMessage.isUser && lastMessage.id !== lastAiMessageId) {
       setLastAiMessageId(lastMessage.id);
       speak(lastMessage.content, settings.voiceType || 'alloy');
     }
-  }, [messages, isLoading, lastAiMessageId, speak, settings?.voiceOutput, settings?.voiceType]);
+  }, [messages, isLoading, lastAiMessageId, speak, settings]);
 
   // Load existing messages on mount
   useEffect(() => {
