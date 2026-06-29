@@ -6,6 +6,7 @@ import { Heart } from 'lucide-react';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 
 const Index = () => {
+  console.log("[GF.Chat] Chat route render");
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -36,7 +37,7 @@ const Index = () => {
   }
   
   if (!isAuthenticated && !hasAccessToken) {
-    return null; // Redirecting
+    return <div style={{ padding: 24, fontFamily: 'sans-serif' }}>GF.Chat redirecting to login...</div>;
   }
 
   return (

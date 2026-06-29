@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SettingsProvider } from "@/hooks/useSettings";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import Intro from "./pages/Intro";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -13,8 +12,10 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ErrorBoundary>
+const App = () => {
+  console.log("[GF.Chat] App render", window.location.pathname);
+  
+  return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
         <TooltipProvider>
@@ -33,7 +34,7 @@ const App = () => (
         </TooltipProvider>
       </SettingsProvider>
     </QueryClientProvider>
-  </ErrorBoundary>
-);
+  );
+};
 
 export default App;
