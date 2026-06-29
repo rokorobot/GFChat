@@ -1,0 +1,7 @@
+project_id = "lfhmzgqkgxidmsaqpqim"
+
+[functions.chat-ai]
+verify_jwt = false
+
+[functions.text-to-speech]
+verify_jwt = false

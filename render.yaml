@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: gfchat
+    env: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_SUPABASE_PROJECT_ID
+        value: lfhmzgqkgxidmsaqpqim
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmaG16Z3FrZ3hpZG1zYXFwcWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDQyMzQsImV4cCI6MjA3Mzc4MDIzNH0.g9aJQSWieV0dvTfXzKeOAd6dfxOUKXcaMxV_x74NgVU
+      - key: VITE_SUPABASE_URL
+        value: https://lfhmzgqkgxidmsaqpqim.supabase.co
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

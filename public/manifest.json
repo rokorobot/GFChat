@@ -1,0 +1,22 @@
+{
+  "name": "GFChat PWA",
+  "short_name": "GFChat",
+  "description": "AI chat app with PWA support",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#18181b",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/public/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/public/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
