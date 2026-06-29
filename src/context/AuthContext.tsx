@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   logout: () => void;
+  loginAsPreview: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,8 +22,9 @@ export const AuthProvider = ({ children, preview = false }: AuthProviderProps) =
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [forcePreview, setForcePreview] = useState(false);
 
-  const activePreview = preview || !isSupabaseConfigured;
+  const activePreview = preview || !isSupabaseConfigured || forcePreview;
 
   useEffect(() => {
     if (activePreview) {
@@ -74,10 +76,15 @@ export const AuthProvider = ({ children, preview = false }: AuthProviderProps) =
     return () => subscription.unsubscribe();
   }, [activePreview]);
 
+  const loginAsPreview = () => {
+    setForcePreview(true);
+  };
+
   const logout = async () => {
-    if (!activePreview) {
+    if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
+    setForcePreview(false);
     setUser(null);
     setSession(null);
   };
@@ -88,6 +95,7 @@ export const AuthProvider = ({ children, preview = false }: AuthProviderProps) =
     isAuthenticated: !!user && !!session,
     isLoading,
     logout,
+    loginAsPreview,
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,13 @@ export const Auth: React.FC = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { loginAsPreview, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/chat');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -276,6 +284,24 @@ export const Auth: React.FC = () => {
               </form>
             </TabsContent>
           </Tabs>
+          )}
+          
+          {import.meta.env.DEV && (
+            <div className="mt-4">
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-muted" />
+                <span className="flex-shrink mx-4 text-muted-foreground text-xs uppercase tracking-wider">Dev Options</span>
+                <div className="flex-grow border-t border-muted" />
+              </div>
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full border-dashed border-pink-300 text-pink-600 hover:bg-pink-50 hover:text-pink-700 dark:border-pink-900 dark:text-pink-400 dark:hover:bg-pink-950/20"
+                onClick={loginAsPreview}
+              >
+                Continue in Local Preview Mode
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>
