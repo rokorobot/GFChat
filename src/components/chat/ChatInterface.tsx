@@ -397,7 +397,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
             </div>
             <div className="flex justify-between items-center text-xs">
               <span className="text-muted-foreground">Mode</span>
-              <span className="font-semibold text-muted-foreground">Local Fallback</span>
+              <span className="font-semibold text-primary capitalize">
+                {runtimeMode === 'remote-supabase'
+                  ? 'Remote Supabase'
+                  : runtimeMode === 'config-error'
+                    ? 'Config Error'
+                    : 'Local Preview'}
+              </span>
             </div>
           </div>
         </div>
