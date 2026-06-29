@@ -1,43 +1,10 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { SettingsProvider } from "@/hooks/useSettings";
-import { AuthProvider } from "@/context/AuthContext";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import Intro from "./pages/Intro";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient();
+import React from 'react';
 
 const App = () => {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SettingsProvider>
-          <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Intro />} />
-                  <Route path="/chat" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/settings" element={<Settings />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </AuthProvider>
-        </SettingsProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <div style={{ padding: 32, fontFamily: "sans-serif", color: "#d63384", fontWeight: "bold" }}>
+      GF.Chat App component works
+    </div>
   );
 };
 
