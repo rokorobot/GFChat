@@ -106,6 +106,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
 
         if (existingMessages && existingMessages.length > 0) {
           setMessages(existingMessages);
+          
+          // Prevent auto-speaking old historical responses on initial load
+          const lastAiMsg = [...existingMessages].reverse().find(m => !m.isUser);
+          if (lastAiMsg) {
+            setLastAiMessageId(lastAiMsg.id);
+          }
         } else {
           // Send initial welcome message if no messages exist
           const welcomeMessage = `Hi! I'm your AI ${settings?.aiGender === 'male' ? 'boyfriend' : 'girlfriend'} and I'm so excited to chat with you! 💕 How are you doing today?`;

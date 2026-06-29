@@ -12,8 +12,11 @@ export const useTextToSpeech = () => {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
       currentAudioRef.current = null;
-      setIsPlaying(false);
     }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlaying(false);
   };
 
   // Clean up audio on unmount
