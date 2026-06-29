@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { runtimeMode, getConfigErrorDetails } from '@/lib/runtimeConfig';
 
 export interface ChatMessage {
@@ -16,7 +16,7 @@ export class CompanionClient {
 
   // Load chat messages
   async loadMessages(userId: string): Promise<ChatMessage[]> {
-    if (isSupabaseConfigured) {
+    if (runtimeMode === 'remote-supabase') {
       try {
         const { data, error } = await supabase
           .from('messages')
@@ -59,7 +59,7 @@ export class CompanionClient {
       debugInfo
     };
 
-    if (isSupabaseConfigured) {
+    if (runtimeMode === 'remote-supabase') {
       try {
         const { data, error } = await supabase
           .from('messages')
@@ -95,7 +95,7 @@ export class CompanionClient {
 
   // Clear all messages for user
   async clearMessages(userId: string): Promise<void> {
-    if (isSupabaseConfigured) {
+    if (runtimeMode === 'remote-supabase') {
       try {
         const { error } = await supabase
           .from('messages')
@@ -123,7 +123,7 @@ export class CompanionClient {
       throw new Error(`Configuration Error: ${getConfigErrorDetails()}`);
     }
 
-    if (isSupabaseConfigured) {
+    if (runtimeMode === 'remote-supabase') {
       try {
         // Prepare context payload in same format as edge function migration expectations
         const conversationHistory = history.map(h => ({
