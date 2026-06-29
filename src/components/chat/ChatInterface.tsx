@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { TypingIndicator } from './TypingIndicator';
@@ -7,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, MessageCircle } from 'lucide-react';
+import { RotateCcw, MessageCircle, Settings as SettingsIcon, LogOut as LogOutIcon } from 'lucide-react';
 import { companionClient, ChatMessage } from '@/backend/companionClient';
 import { AvatarStage } from '@/avatar/AvatarStage';
 import { AvatarState, AvatarEmotion } from '@/avatar/avatar';
@@ -35,7 +36,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const previousGenderRef = useRef<'male' | 'female'>();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
   const { speak, stop, isPlaying: isSpeaking } = useTextToSpeech();
   const { settings, getCurrentPersonalityText } = useSettings();
@@ -235,87 +237,183 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onFeedbackClick })
     }
   };
 
+  const handleLogout = async () => {
+    stop();
+    await logout();
+    navigate('/');
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-gradient-chat">
-      {/* Header with Speaking Avatar Stage */}
-      <div className="flex flex-col items-center p-4 border-b border-border bg-card/80 backdrop-blur-sm relative w-full">
-        <AvatarStage
-          gender={settings.aiGender}
-          state={avatarState}
-          emotion={avatarEmotion}
-          providerId="static-speaking"
-        />
+    <div className="flex h-screen w-full bg-gradient-chat overflow-hidden lg:flex-row flex-col">
+      
+      {/* LEFT/CENTER CONVERSATION ZONE */}
+      <div className="flex-1 flex flex-col h-full overflow-hidden relative border-r border-border/20">
         
-        {/* Default Companion Profile Identity Details */}
-        <div className="mt-1 text-center">
-          <h2 className="text-sm font-bold text-foreground capitalize flex items-center justify-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
-            {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
-          </h2>
-          <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
-            AI Girlfriend • {settings.currentPersonality || 'Sweet'} Preset
-          </p>
+        {/* Navigation bar with settings and logout */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/30 backdrop-blur-sm lg:px-6">
+          <div className="flex items-center gap-4">
+            <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">GF.Chat</span>
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/settings')}
+              className="text-muted-foreground hover:text-foreground h-8 w-8 rounded-full"
+              title="Settings"
+            >
+              <SettingsIcon className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider bg-primary/10 text-primary px-2.5 py-1 rounded-full lg:hidden">
+              {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
+            </span>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-foreground h-8 px-2.5 rounded-full text-xs"
+              title="Logout"
+            >
+              <LogOutIcon className="w-3.5 h-3.5 mr-1.5" />
+              <span className="hidden sm:inline">Logout</span>
+            </Button>
+          </div>
         </div>
-        
-        {/* Reset button positioned at lower right corner */}
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleResetChat}
-          className="absolute bottom-4 right-4 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90"
-          title="Reset Chat"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </Button>
-        
-        {/* Feedback button positioned at lower left corner */}
-        {onFeedbackClick && (
+
+        {/* Mobile-only avatar stage (hidden on desktop) */}
+        <div className="flex flex-col items-center p-3 border-b border-border bg-card/85 backdrop-blur-sm lg:hidden relative w-full shrink-0">
+          <AvatarStage
+            gender={settings.aiGender}
+            state={avatarState}
+            emotion={avatarEmotion}
+            providerId="static-speaking"
+          />
+          
+          {/* Identity Info Details */}
+          <div className="mt-0.5 text-center">
+            <h2 className="text-sm font-bold text-foreground capitalize flex items-center justify-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
+            </h2>
+            <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-semibold">
+              AI Girlfriend • {settings.currentPersonality || 'Sweet'} Preset
+            </p>
+          </div>
+          
+          {/* Reset button positioned at lower right corner */}
           <Button
             variant="outline"
             size="icon"
-            onClick={onFeedbackClick}
-            className="absolute bottom-4 left-4 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90"
-            title="Send Feedback"
+            onClick={handleResetChat}
+            className="absolute bottom-3 right-3 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90"
+            title="Reset Chat"
           >
-            <MessageCircle className="h-4 w-4" />
+            <RotateCcw className="h-4 w-4" />
           </Button>
-        )}
+        </div>
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-1 flex justify-center w-full">
+          <div className="w-full max-w-3xl">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="text-muted-foreground">Loading your conversation...</div>
+              </div>
+            ) : (
+              <>
+                {messages.map((message) => (
+                  <MessageBubble
+                    key={message.id}
+                    message={message.content}
+                    isUser={message.isUser}
+                    timestamp={message.timestamp}
+                    avatar={message.isUser ? "👤" : undefined}
+                    aiGender={settings.aiGender}
+                  />
+                ))}
+                <TypingIndicator isVisible={isTyping} />
+                <div ref={messagesEndRef} />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Input Bar */}
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          onInputChange={handleInputChange}
+          onVoiceListeningChange={handleVoiceListeningChange}
+          placeholder="Share your thoughts..."
+          disabled={isTyping || isLoading}
+        />
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-1 flex justify-center">
-        <div className="w-full max-w-4xl">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="text-muted-foreground">Loading your conversation...</div>
+      {/* RIGHT COMPANION DISPLAY PANEL (DESKTOP ONLY) */}
+      <div className="hidden lg:flex w-80 xl:w-96 border-l border-border bg-card/45 backdrop-blur-md h-full flex-col items-center justify-between p-6 shrink-0 relative overflow-y-auto">
+        <div className="w-full flex flex-col items-center flex-1 justify-center gap-6">
+          <AvatarStage
+            gender={settings.aiGender}
+            state={avatarState}
+            emotion={avatarEmotion}
+            providerId="static-speaking"
+          />
+
+          <div className="text-center space-y-1">
+            <h2 className="text-xl font-bold text-foreground capitalize flex items-center justify-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+              {settings.aiGender === 'male' ? 'Alex' : 'Mia'}
+            </h2>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
+              AI Girlfriend Preset
+            </p>
           </div>
-        ) : (
-          <>
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message.content}
-                isUser={message.isUser}
-                timestamp={message.timestamp}
-                avatar={message.isUser ? "👤" : undefined}
-                aiGender={settings.aiGender}
-              />
-            ))}
-            <TypingIndicator isVisible={isTyping} />
-            <div ref={messagesEndRef} />
-          </>
-        )}
+
+          {/* Quick Companion details card */}
+          <div className="w-full bg-background/50 border border-border/60 rounded-2xl p-4 space-y-3 shadow-inner">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-muted-foreground">Personality</span>
+              <span className="font-semibold text-primary">{settings.currentPersonality || 'Sweet'}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-muted-foreground">Voice Engine</span>
+              <span className="font-semibold text-foreground uppercase">{settings.voiceType || 'Nova'}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-muted-foreground">Expression</span>
+              <span className="font-semibold text-accent capitalize">{avatarEmotion}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-muted-foreground">Mode</span>
+              <span className="font-semibold text-muted-foreground">Local Fallback</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full space-y-3 mt-6">
+          <Button
+            variant="outline"
+            className="w-full border-border/80 hover:bg-background/80 flex items-center justify-center gap-2 rounded-full py-5 text-sm"
+            onClick={handleResetChat}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reset Conversation
+          </Button>
+
+          {onFeedbackClick && (
+            <Button
+              variant="ghost"
+              className="w-full text-muted-foreground hover:text-foreground text-xs"
+              onClick={onFeedbackClick}
+            >
+              <MessageCircle className="h-3.5 h-3.5 mr-1" />
+              Send App Feedback
+            </Button>
+          )}
         </div>
       </div>
-
-      {/* Input */}
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        onInputChange={handleInputChange}
-        onVoiceListeningChange={handleVoiceListeningChange}
-        placeholder="Share your thoughts..."
-        disabled={isTyping || isLoading}
-      />
+      
     </div>
   );
 };

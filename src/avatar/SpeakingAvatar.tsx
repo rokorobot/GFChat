@@ -80,6 +80,20 @@ export const SpeakingAvatar: React.FC<SpeakingAvatarProps> = ({ gender, state, e
     }
   };
 
+  const getFriendlyStateLabel = () => {
+    switch (state) {
+      case 'listening':
+        return 'Listening...';
+      case 'thinking':
+        return 'Thinking of you...';
+      case 'speaking':
+        return 'Talking...';
+      case 'idle':
+      default:
+        return 'Here with you';
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <div className="relative">
@@ -110,8 +124,8 @@ export const SpeakingAvatar: React.FC<SpeakingAvatarProps> = ({ gender, state, e
         </div>
 
         {/* State Badge Overlay */}
-        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-card border border-border px-3 py-0.5 rounded-full shadow-md text-xs font-semibold">
-          <span className="capitalize">{state}</span>
+        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-card border border-border px-3 py-0.5 rounded-full shadow-md text-xs font-semibold whitespace-nowrap">
+          <span>{getFriendlyStateLabel()}</span>
         </div>
       </div>
     </div>
