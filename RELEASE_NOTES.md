@@ -3,12 +3,11 @@
 ## [v0.1.2] - Adaptive Desktop Layout (`feature/adaptive-desktop-layout`)
 - **Adaptive Two-Zone Layout**: Added full desktop breakpoint support. On wide viewports (`lg:`), the screen is split: the conversation panel (messages & input bar) occupies the left/center, while a dedicated companion detail panel moves to the right.
 - **Improved Space Efficiency**: Pruned excessive vertical whitespace on top of the mobile vertical flow.
-- **Friendly State Indicators**: Replaced raw technical avatar action labels with warm, emotionally resonant companion descriptors:
-  - `Idle` -> *Here with you*
-  - `Listening` -> *Listening...*
-  - `Thinking` -> *Thinking of you...*
-  - `Speaking` -> *Talking...*
+- **Friendly State Indicators**: Replaced raw technical avatar action labels with warm, emotionally resonant companion descriptors.
 - **Header Navigation Consolidation**: Moved absolute positioned settings and logout buttons directly into the primary header bar of `ChatInterface.tsx` to prevent overlay rendering bugs on varying screen widths.
+- **Supabase TTS Edge Fallback**: Configured automatic failover to local browser `SpeechSynthesis` if the remote Edge Function fails or is offline, avoiding noisy toast warning banners.
+- **StrictMode Welcome Deduplication**: Fixed double welcome message creation on initial loads by adding lock guards (`isInitializingRef`) to handle React StrictMode double mounts.
+- **User Avatar Shrink Protection**: Applied `shrink-0` classes to message avatars to keep bubbles and tags aligned on wide screens.
 
 ---
 
