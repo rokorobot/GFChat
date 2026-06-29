@@ -26,7 +26,13 @@ console.log("[GF.Chat] after createRoot, before render");
 
 try {
   reactRoot.render(
-    <App />
+    <React.StrictMode>
+      <ErrorBoundary>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ErrorBoundary>
+    </React.StrictMode>
   );
   console.log("[GF.Chat] render call completed");
 } catch (error) {
