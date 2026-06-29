@@ -26,11 +26,7 @@ console.log("[GF.Chat] after createRoot, before render");
 
 try {
   reactRoot.render(
-    <React.StrictMode>
-      <div style={{ padding: 32, fontFamily: "sans-serif", color: "#d63384", fontWeight: "bold" }}>
-        GF.Chat minimal React render works
-      </div>
-    </React.StrictMode>
+    <App />
   );
   console.log("[GF.Chat] render call completed");
 } catch (error) {
