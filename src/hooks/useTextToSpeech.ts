@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { runtimeMode } from '@/lib/runtimeConfig';
 
 export const useTextToSpeech = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -82,6 +83,7 @@ export const useTextToSpeech = () => {
 
       // 1. Try Supabase TTS Edge Function first if configured
       if (isSupabaseConfigured) {
+        console.log("[GF.Chat] calling remote TTS Edge Function");
         try {
           const { data, error } = await supabase.functions.invoke('text-to-speech', {
             body: { text, voice }
@@ -127,6 +129,8 @@ export const useTextToSpeech = () => {
         } catch (supabaseError) {
           console.warn('Supabase TTS failed, trying browser SpeechSynthesis fallback:', supabaseError);
         }
+      } else {
+        console.log("[GF.Chat] skipping remote TTS in local mode");
       }
 
       // 2. Fall back to browser SpeechSynthesis if Supabase is unconfigured or failed
