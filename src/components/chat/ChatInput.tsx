@@ -1,4 +1,4 @@
-import React, { useState, KeyboardEvent, useEffect } from 'react';
+import React, { useState, KeyboardEvent, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Mic, MicOff } from 'lucide-react';
@@ -25,6 +25,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const [message, setMessage] = useState('');
   const { settings } = useSettings();
   const { toast } = useToast();
+  const textBeforeVoiceRef = useRef('');
   
   const { 
     isListening, 
@@ -55,13 +56,23 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   // Update input with voice transcript for visual feedback
   useEffect(() => {
-    if (isListening && transcript) {
-      setMessage(transcript);
+    if (transcript) {
+      const prefix = textBeforeVoiceRef.current;
+      const separator = prefix.trim().length > 0 ? ' ' : '';
+      const newMessage = `${prefix}${separator}${transcript}`;
+      setMessage(newMessage);
       if (onInputChange) {
-        onInputChange(transcript);
+        onInputChange(newMessage);
       }
     }
-  }, [transcript, isListening, onInputChange]);
+  }, [transcript, onInputChange]);
+
+  const handleToggleListening = () => {
+    if (!isListening) {
+      textBeforeVoiceRef.current = message;
+    }
+    toggleListening();
+  };
 
   const handleSend = () => {
     if (message.trim() && !disabled) {
@@ -105,7 +116,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       {/* Voice Input Button - only show if voice input is enabled and supported */}
       {settings?.voiceInput && isVoiceSupported && (
         <Button
-          onClick={toggleListening}
+          onClick={handleToggleListening}
           disabled={disabled}
           size="icon"
           variant={isListening ? "destructive" : "outline"}

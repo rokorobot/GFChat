@@ -51,10 +51,20 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       recognition.interimResults = interimResults;
 
       recognition.onstart = () => {
+        console.log("[voice] recognition started");
         setIsListening(true);
       };
 
+      recognition.onsoundstart = () => {
+        console.log("[voice] sound detected");
+      };
+
+      recognition.onspeechstart = () => {
+        console.log("[voice] speech detected");
+      };
+
       recognition.onresult = (event: any) => {
+        console.log("[voice] result event", event);
         let finalTranscript = '';
         let interimTranscript = '';
 
@@ -68,6 +78,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
         }
 
         const fullTranscript = finalTranscript || interimTranscript;
+        console.log("[voice] transcript:", fullTranscript);
         setTranscript(fullTranscript);
 
         if (finalTranscript && optionsRef.current.onResult) {
@@ -76,7 +87,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       };
 
       recognition.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        console.error('[voice] recognition error:', event.error);
         setIsListening(false);
         
         let errorMessage = 'Speech recognition error occurred';
@@ -109,6 +120,7 @@ export const useVoiceInput = (options: UseVoiceInputOptions = {}) => {
       };
 
       recognition.onend = () => {
+        console.log("[voice] recognition ended");
         setIsListening(false);
       };
 
